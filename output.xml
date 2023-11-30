@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notXMLable />
+<Student>
+  <firstName type="String">Jane</firstName>
+  <lastName type="String">Doe</lastName>
+  <age type="int">25</age>
+</Student>
+<Student>
+  <firstName type="String">John</firstName>
+  <lastName type="String">Smith</lastName>
+  <age type="int">30</age>
+</Student>
+<notXMLable />
