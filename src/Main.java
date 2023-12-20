@@ -1,6 +1,7 @@
-
+/**
+ * Main class for the XMLSerializer example.
+ */
 public class Main {
-
     public static void main(String[] args) {
         Object[] persons = {
                 new Professor("Prof", "X", 40, "Computer Science"),

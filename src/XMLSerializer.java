@@ -7,6 +7,12 @@ import java.util.Map;
 
 public class XMLSerializer {
 
+    /**
+     * Serialize an array of objects to an XML file.
+     *
+     * @param arr      the array of objects to serialize
+     * @param fileName the name of the file to write
+     */
     public static void serialize(Object[] arr, String fileName) {
         try (FileWriter writer = new FileWriter(fileName)) {
             // Add the XML declaration
@@ -18,18 +24,17 @@ public class XMLSerializer {
             for (Object obj : arr) {
                 // verify if the class is already in the map
                 Class<?> objClass = obj.getClass();
-                ClassInfo classInfo = classInfoMap.computeIfAbsent(objClass, c -> new ClassInfo(c));
+                ClassInfo classInfo = classInfoMap.computeIfAbsent(objClass, ClassInfo::new);
 
                 if (classInfo.isXMLable()) {
                     // write the opening tag of the class
                     writer.write("<" + classInfo.getClassName() + ">\n");
 
                     for (ClassInfo.FieldInfo fieldInfo : classInfo.getFieldInfoList()) {
-                        Field field = fieldInfo.getField();
-                        Annotation annotation = fieldInfo.getAnnotation();
+                        Field field = fieldInfo.field();
+                        Annotation annotation = fieldInfo.annotation();
 
-                        if (annotation instanceof XMLfield) {
-                            XMLfield xmlFieldAnnotation = (XMLfield) annotation;
+                        if (annotation instanceof XMLfield xmlFieldAnnotation) {
 
                             try {
                                 // set the field accessible
@@ -63,18 +68,25 @@ public class XMLSerializer {
         }
     }
 
-    // auxiliary class to store the class information
+    /**
+     * Auxiliary class to store the class information.
+     */
     private static class ClassInfo {
-        private boolean isXMLable;
-        private String className;
-        private Map<String, FieldInfo> fieldInfoMap = new HashMap<>();
+        private final boolean isXMLable;
+        private final String className;
+        private final Map<String, FieldInfo> fieldInfoMap = new HashMap<>();
 
+        /**
+         * Constructor.
+         *
+         * @param clazz the class to store the information
+         */
         public ClassInfo(Class<?> clazz) {
             this.isXMLable = clazz.isAnnotationPresent(XMLable.class);
             this.className = clazz.getSimpleName();
 
             if (isXMLable) {
-                // Memorizza le informazioni sui campi
+                // get all the fields of the class
                 Field[] fields = clazz.getDeclaredFields();
                 for (Field field : fields) {
                     Annotation[] annotations = field.getDeclaredAnnotations();
@@ -85,35 +97,37 @@ public class XMLSerializer {
             }
         }
 
+        /**
+         * Check if the class is XMLable.
+         * @return true if the class is XMLable, false otherwise
+         */
         public boolean isXMLable() {
             return isXMLable;
         }
 
+        /**
+         * Get the name of the class.
+         * @return the name of the class
+         */
         public String getClassName() {
             return className;
         }
 
+        /**
+         * Get the list of the fields of the class.
+         * @return the list of the fields of the class
+         */
         public Iterable<FieldInfo> getFieldInfoList() {
             return fieldInfoMap.values();
         }
 
-        // auxiliary class to store the field information
-        public static class FieldInfo {
-            private final Field field;
-            private final Annotation annotation;
-
-            public FieldInfo(Field field, Annotation annotation) {
-                this.field = field;
-                this.annotation = annotation;
-            }
-
-            public Field getField() {
-                return field;
-            }
-
-            public Annotation getAnnotation() {
-                return annotation;
-            }
+        /**
+         * Auxiliary class to store the field information.
+         *
+         * @param field the field
+         * @param annotation the annotation of the field
+         */
+            public record FieldInfo(Field field, Annotation annotation) {
         }
     }
 }
