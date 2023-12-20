@@ -44,9 +44,17 @@ public class XMLSerializer {
                                 Object value = field.get(obj);
 
                                 // write the opening tag of the field
-                                writer.write("  <" + field.getName() + " type=\"" + xmlFieldAnnotation.type() + "\">");
-                                writer.write(value.toString());
-                                writer.write("</" + field.getName() + ">\n");
+                                if(xmlFieldAnnotation.name().isEmpty()) {
+                                    writer.write("  <" + field.getName() + " type=\"" + xmlFieldAnnotation.type() + "\">");
+                                    writer.write(value.toString());
+                                    writer.write("</" + field.getName() + ">\n");
+                                }
+                                else{
+                                    writer.write("  <" + xmlFieldAnnotation.name() + " type=\"" + xmlFieldAnnotation.type() + "\">");
+                                    writer.write(value.toString());
+                                    writer.write("</" + xmlFieldAnnotation.name() + ">\n");
+                                }
+
                             } catch (IllegalAccessException e) {
                                 e.printStackTrace();
                             } finally {

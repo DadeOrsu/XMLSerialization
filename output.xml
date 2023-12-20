@@ -7,11 +7,13 @@
 </Professor>
 <Student>
   <firstName type="String">Jane</firstName>
-  <lastName type="String">Doe</lastName>
+  <surname type="String">Doe</surname>
+  <age type="int">25</age>
 </Student>
 <Student>
   <firstName type="String">John</firstName>
-  <lastName type="String">Smith</lastName>
+  <surname type="String">Smith</surname>
+  <age type="int">30</age>
 </Student>
 <Professor>
   <firstName type="String">Prof</firstName>

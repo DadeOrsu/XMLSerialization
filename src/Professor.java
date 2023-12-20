@@ -2,7 +2,7 @@
 public class Professor {
     @XMLfield(type = "String")
     private String firstName;
-    @XMLfield(type = "String", name = "surname")
+    @XMLfield(type = "String")
     private String lastName;
     @XMLfield(type = "int")
     private int age;
