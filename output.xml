@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<notXMLable />
 <Professor>
-  <firstName type="String">Prof</firstName>
   <lastName type="String">X</lastName>
   <department type="String">Computer Science</department>
   <age type="int">40</age>
@@ -16,8 +16,8 @@
   <age type="int">30</age>
 </Student>
 <Professor>
-  <firstName type="String">Prof</firstName>
   <lastName type="String">Y</lastName>
   <department type="String">Physics</department>
   <age type="int">45</age>
 </Professor>
+<notXMLable />

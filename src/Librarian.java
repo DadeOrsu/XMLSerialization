@@ -1,18 +1,12 @@
-@XMLable
-public class Professor {
-
+public class Librarian {
     private String firstName;
-    @XMLfield(type = "String")
     private String lastName;
-    @XMLfield(type = "int")
     private int age;
-    @XMLfield(type = "String")
     private String department;
-
-    public Professor() {
+    public Librarian() {
     }
 
-    public Professor(String firstName, String lastName, int age, String department) {
+    public Librarian(String firstName, String lastName, int age, String department) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
