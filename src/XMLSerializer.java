@@ -64,10 +64,10 @@ public class XMLSerializer {
                         }
                     }
 
-                    // Scrivi l'etichetta di chiusura della classe
+                    // Write the closing etiquette
                     writer.write("</" + classInfo.getClassName() + ">\n");
                 } else {
-                    // Scrivi solo <notXMLable /> se la classe non ha l'annotazione XMLable
+                    // Write only <notXMLable /> if the class has not the annotation XMLable
                     writer.write("<notXMLable />\n");
                 }
             }
