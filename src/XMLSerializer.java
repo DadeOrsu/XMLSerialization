@@ -31,36 +31,24 @@ public class XMLSerializer {
                     writer.write("<" + classInfo.getClassName() + ">\n");
 
                     for (ClassInfo.FieldInfo fieldInfo : classInfo.getFieldInfoList()) {
-                        Field field = fieldInfo.field();
-                        Annotation annotation = fieldInfo.annotation();
+                        Field field = fieldInfo.getField();
+                        XMLfield xmlFieldAnnotation = fieldInfo.getAnnotation();
 
-                        if (annotation instanceof XMLfield xmlFieldAnnotation) {
+                        try {
+                            field.setAccessible(true);
+                            Object value = field.get(obj);
 
-                            try {
-                                // set the field accessible
-                                field.setAccessible(true);
+                            // obtain the new tagname from the class info
+                            String tagName = fieldInfo.getXMLTagName();
 
-                                // obtain the value of the field
-                                Object value = field.get(obj);
+                            writer.write("  <" + tagName + " type=\"" + xmlFieldAnnotation.type() + "\">");
+                            writer.write(value.toString());
+                            writer.write("</" + tagName + ">\n");
 
-                                // write the opening tag of the field
-                                if(xmlFieldAnnotation.name().isEmpty()) {
-                                    writer.write("  <" + field.getName() + " type=\"" + xmlFieldAnnotation.type() + "\">");
-                                    writer.write(value.toString());
-                                    writer.write("</" + field.getName() + ">\n");
-                                }
-                                else{
-                                    writer.write("  <" + xmlFieldAnnotation.name() + " type=\"" + xmlFieldAnnotation.type() + "\">");
-                                    writer.write(value.toString());
-                                    writer.write("</" + xmlFieldAnnotation.name() + ">\n");
-                                }
-
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            } finally {
-                                // set the field not accessible
-                                field.setAccessible(false);
-                            }
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } finally {
+                            field.setAccessible(false);
                         }
                     }
 
@@ -76,19 +64,11 @@ public class XMLSerializer {
         }
     }
 
-    /**
-     * Auxiliary class to store the class information.
-     */
     private static class ClassInfo {
         private final boolean isXMLable;
         private final String className;
         private final Map<String, FieldInfo> fieldInfoMap = new HashMap<>();
 
-        /**
-         * Constructor.
-         *
-         * @param clazz the class to store the information
-         */
         public ClassInfo(Class<?> clazz) {
             this.isXMLable = clazz.isAnnotationPresent(XMLable.class);
             this.className = clazz.getSimpleName();
@@ -99,43 +79,50 @@ public class XMLSerializer {
                 for (Field field : fields) {
                     Annotation[] annotations = field.getDeclaredAnnotations();
                     for (Annotation annotation : annotations) {
-                        fieldInfoMap.put(field.getName(), new FieldInfo(field, annotation));
+                        if (annotation instanceof XMLfield xmlFieldAnnotation) {
+                            fieldInfoMap.put(field.getName(), new FieldInfo(field, xmlFieldAnnotation));
+                        }
                     }
                 }
             }
         }
 
-        /**
-         * Check if the class is XMLable.
-         * @return true if the class is XMLable, false otherwise
-         */
         public boolean isXMLable() {
             return isXMLable;
         }
 
-        /**
-         * Get the name of the class.
-         * @return the name of the class
-         */
         public String getClassName() {
             return className;
         }
 
-        /**
-         * Get the list of the fields of the class.
-         * @return the list of the fields of the class
-         */
         public Iterable<FieldInfo> getFieldInfoList() {
             return fieldInfoMap.values();
         }
 
         /**
-         * Auxiliary class to store the field information.
-         *
-         * @param field the field
-         * @param annotation the annotation of the field
+         * Class to maintain the information of an annotated field.
          */
-            public record FieldInfo(Field field, Annotation annotation) {
+        public static class FieldInfo {
+            private final Field field;
+            private final XMLfield xmlFieldAnnotation;
+
+            public FieldInfo(Field field, XMLfield xmlFieldAnnotation) {
+                this.field = field;
+                this.xmlFieldAnnotation = xmlFieldAnnotation;
+            }
+
+            public Field getField() {
+                return field;
+            }
+
+            public XMLfield getAnnotation() {
+                return xmlFieldAnnotation;
+            }
+
+            public String getXMLTagName() {
+                return xmlFieldAnnotation.name().isEmpty() ? field.getName() : xmlFieldAnnotation.name();
+            }
         }
     }
+
 }
