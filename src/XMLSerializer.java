@@ -15,33 +15,32 @@ public class XMLSerializer {
      */
     public static void serialize(Object[] arr, String fileName) {
         try (FileWriter writer = new FileWriter(fileName)) {
-            // Add the XML declaration
+            // Add the XML declaration at the beginning of the xml file
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 
-            // map to store the class information
+            // Map that stores class metadata to ensure introspection is performed only once per class.
             Map<Class<?>, ClassInfo> classInfoMap = new HashMap<>();
 
             for (Object obj : arr) {
-                // verify if the class is already in the map
+                // for each object we get its class
                 Class<?> objClass = obj.getClass();
+                // if the class metadata are already present in the map we use them, otherwise we add them
                 ClassInfo classInfo = classInfoMap.computeIfAbsent(objClass, ClassInfo::new);
-
+                // check if the class has the XMLable annotation
                 if (classInfo.isXMLable()) {
-                    // write the opening tag of the class
                     writer.write("<" + classInfo.getClassName() + ">\n");
-
+                    // iterate over the XMLfields of the class
                     for (ClassInfo.FieldInfo fieldInfo : classInfo.getFieldInfoList()) {
                         Field field = fieldInfo.getField();
                         XMLfield xmlFieldAnnotation = fieldInfo.getAnnotation();
-
+                        // set the field as accessible and restore its accessibility at the end
                         boolean wasAccessible = field.canAccess(obj);
                         field.setAccessible(true);
                         try {
                             Object value = field.get(obj);
 
-                            // obtain the new tagname from the class info
+                            // obtain the tag from the class info and write it
                             String tagName = fieldInfo.getXMLTagName();
-
                             writer.write("  <" + tagName + " type=\"" + xmlFieldAnnotation.type() + "\">");
                             writer.write(value.toString());
                             writer.write("</" + tagName + ">\n");
@@ -65,6 +64,11 @@ public class XMLSerializer {
         }
     }
 
+    /**
+     * The ClassInfo class serves as a support structure to efficiently retrieve metadata about a specific class,
+     * avoiding redundant introspection. When an instance of a previously unseen class is encountered for the first time,
+     * its metadata is extracted and stored, ensuring that future accesses do not require repeated reflection.
+     */
     private static class ClassInfo {
         private final boolean isXMLable;
         private final String className;
@@ -73,9 +77,9 @@ public class XMLSerializer {
         public ClassInfo(Class<?> clazz) {
             this.isXMLable = clazz.isAnnotationPresent(XMLable.class);
             this.className = clazz.getSimpleName();
-
+            //checks if the @XMLable annotation is present, if so it stores other metadata
             if (isXMLable) {
-                // get all the fields of the class
+                // Retrieve all declared fields of the class and store their metadata if annotated with @XMLfield.
                 Field[] fields = clazz.getDeclaredFields();
                 for (Field field : fields) {
                     Annotation[] annotations = field.getDeclaredAnnotations();
@@ -101,7 +105,9 @@ public class XMLSerializer {
         }
 
         /**
-         * Class to maintain the information of an annotated field.
+         * A utility class that stores metadata about a field annotated with @XMLfield.
+         * It provides access to the field’s reflection object, its annotation details,
+         * and utility methods for retrieving XML-related attributes.
          */
         public static class FieldInfo {
             private final Field field;
