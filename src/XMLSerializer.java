@@ -38,11 +38,12 @@ public class XMLSerializer {
                         field.setAccessible(true);
                         try {
                             Object value = field.get(obj);
-
+                            // handle null value if present
+                            String fieldValue = (value != null) ? value.toString() : "null";
                             // obtain the tag from the class info and write it
                             String tagName = fieldInfo.getXMLTagName();
                             writer.write("  <" + tagName + " type=\"" + xmlFieldAnnotation.type() + "\">");
-                            writer.write(value.toString());
+                            writer.write(fieldValue);
                             writer.write("</" + tagName + ">\n");
 
                         } catch (IllegalAccessException e) {
