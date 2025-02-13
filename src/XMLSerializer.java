@@ -34,8 +34,9 @@ public class XMLSerializer {
                         Field field = fieldInfo.getField();
                         XMLfield xmlFieldAnnotation = fieldInfo.getAnnotation();
 
+                        boolean wasAccessible = field.canAccess(obj);
+                        field.setAccessible(true);
                         try {
-                            field.setAccessible(true);
                             Object value = field.get(obj);
 
                             // obtain the new tagname from the class info
@@ -48,7 +49,7 @@ public class XMLSerializer {
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                         } finally {
-                            field.setAccessible(false);
+                            field.setAccessible(wasAccessible);
                         }
                     }
 
